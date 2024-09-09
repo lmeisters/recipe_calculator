@@ -3,8 +3,14 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+type TabKey =
+    | "getting-started"
+    | "save-recipes"
+    | "scale-servings"
+    | "meal-planning";
+
 const AppShowcaseCard = () => {
-    const [activeTab, setActiveTab] = useState("getting-started");
+    const [activeTab, setActiveTab] = useState<TabKey>("getting-started");
 
     const tabContent = {
         "getting-started": {
@@ -23,7 +29,7 @@ const AppShowcaseCard = () => {
             title: "Meal Planning",
             text: "Plan your meals for the week and generate shopping lists with ease.",
         },
-    };
+    } as const;
 
     return (
         <motion.div

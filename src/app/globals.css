@@ -11,6 +11,10 @@
         @apply bg-black text-white hover:bg-gray-700 transition-colors duration-200;
     }
 
+    .btn-secondary {
+        @apply bg-white text-black hover:bg-gray-300 hover:text-white transition-colors duration-200;
+    }
+
     .btn-text {
         @apply text-black bg-white;
     }
@@ -29,6 +33,10 @@
 
     .section-heading {
         @apply max-w-[540px] mx-auto;
+    }
+
+    .card {
+        @apply p-10 border border-[#222222]/10 rounded-3xl shadow-[0_7px_14px_#EAEAEA] max-w-lg w-full;
     }
 }
 
