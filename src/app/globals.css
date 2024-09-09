@@ -24,7 +24,7 @@
     }
 
     .section-description {
-        @apply text-center text-[22px] leading-[30px] font-light;
+        @apply text-center text-[18px] leading-[30px] text-gray-400;
     }
 
     .section-heading {
