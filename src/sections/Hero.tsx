@@ -17,7 +17,7 @@ export const Hero = () => {
                             Save Recipes, Plan Meals, and Stay Organized with
                             FridgeFolio
                         </h1>
-                        <p className="text-xl text-gray-400 mt-6">
+                        <p className="text-xl text-gray-400 mt-6 px-4">
                             Discover the ultimate recipe-saving app that lets
                             you effortlessly save recipes, adjust portion sizes,
                             plan meals, and track nutrition. Whether you're a
@@ -32,13 +32,13 @@ export const Hero = () => {
                         </div>
                     </div>
                 </div>
-                <div className="mt-12 flex justify-center">
+                <div className="mt-12 flex justify-center px-4">
                     <Image
                         src={PlaceHolder}
                         alt="FridgeFolio Website"
                         width={900}
-                        height={675}
-                        className="w-auto h-auto border-4"
+                        height={600}
+                        className="w-auto h-auto border-4 rounded-lg"
                     />
                 </div>
             </div>

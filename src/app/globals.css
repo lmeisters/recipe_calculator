@@ -18,6 +18,18 @@
     .tag {
         @apply text-sm inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight;
     }
+
+    .section-title {
+        @apply text-center text-3xl md:text-[54px] md:leading-[60px] font-bold;
+    }
+
+    .section-description {
+        @apply text-center text-[22px] leading-[30px] font-light;
+    }
+
+    .section-heading {
+        @apply max-w-[540px] mx-auto;
+    }
 }
 
 @keyframes custom-pulse {
