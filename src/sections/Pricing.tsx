@@ -43,11 +43,13 @@ export const Pricing = () => {
                         <div className="tag">Pricing</div>
                     </div>
                     <h2 className="section-title my-5">
-                        Choose Plan That's Right For You
+                        Unlock the Full Potential of Your Kitchen
                     </h2>
                     <p className="section-description mt-5">
-                        Effortlessly save, scale, and plan meals with just a few
-                        easy steps
+                        Get started with the free version for basic features, or
+                        upgrade to FridgeFolio Pro Chef Pro for unlimited recipe
+                        access, advanced features, and AI-powered tools. Upgrade
+                        and transform your cooking today!
                     </p>
                 </div>
 

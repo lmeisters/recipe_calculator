@@ -104,7 +104,7 @@ export const ProductShowcase = () => {
                     <motion.p
                         initial={{ y: 30, opacity: 0 }}
                         whileInView={{ y: 0, opacity: 1 }}
-                        viewport={{ once: true, margin: "-200px" }}
+                        viewport={{ once: true, margin: "-150px" }}
                         transition={{ duration: 0.6, delay: 0.6 }}
                         className="section-description mt-5"
                     >

@@ -5,7 +5,9 @@ import { ProductShowcase } from "@/sections/ProductShowcase";
 import { Pricing } from "@/sections/Pricing";
 import { CallToAction } from "@/sections/CallToAction";
 import { Footer } from "@/sections/Footer";
+import { FAQ } from "@/sections/FAQ";
 import SmoothScroll from "@/components/SmoothScroll";
+import { Testimonials } from "@/sections/Testimonials";
 
 export default function Home() {
     return (
@@ -17,6 +19,8 @@ export default function Home() {
                     <Features />
                     <ProductShowcase />
                     <Pricing />
+                    <Testimonials />
+                    <FAQ />
                     <CallToAction />
                 </main>
             </SmoothScroll>

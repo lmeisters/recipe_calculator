@@ -24,7 +24,8 @@ export const Hero = () => {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="text-5xl md:text-7xl font-bold mt-6"
                         >
-                            Save Recipes, Plan Meals, and Stay Organized
+                            Simplify Your Cooking with Personalized Recipes and
+                            Smart Meal Planning
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
@@ -32,11 +33,10 @@ export const Hero = () => {
                             transition={{ duration: 0.5, delay: 0.4 }}
                             className="text-xl text-gray-400 mt-8 px-4"
                         >
-                            Discover the ultimate recipe-saving app that lets
-                            you effortlessly save recipes, adjust portion sizes,
-                            plan meals, and track nutrition. Whether you're a
-                            home cook or a pro chef, FridgeFolio helps you
-                            create delicious meals with ease
+                            Transform your cooking with FridgeFolio. Search,
+                            save, and scale recipes effortlessly. Plan meals,
+                            track ingredients, and meet your dietary goals—all
+                            in one powerful app.
                         </motion.p>
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}

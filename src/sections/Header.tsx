@@ -15,6 +15,7 @@ export const Header = () => {
                                 "How It Works",
                                 "Pricing",
                                 "Testimonials",
+                                "FAQ",
                             ].map((item) => (
                                 <a
                                     key={item}
