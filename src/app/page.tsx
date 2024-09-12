@@ -5,17 +5,22 @@ import { ProductShowcase } from "@/sections/ProductShowcase";
 import { Pricing } from "@/sections/Pricing";
 import { CallToAction } from "@/sections/CallToAction";
 import { Footer } from "@/sections/Footer";
+import SmoothScroll from "@/components/SmoothScroll";
 
 export default function Home() {
     return (
-        <>
+        <div className="flex flex-col min-h-screen">
             <Header />
-            <Hero />
-            <Features />
-            <ProductShowcase />
-            <Pricing />
-            <CallToAction />
+            <SmoothScroll>
+                <main className="flex-grow">
+                    <Hero />
+                    <Features />
+                    <ProductShowcase />
+                    <Pricing />
+                    <CallToAction />
+                </main>
+            </SmoothScroll>
             <Footer />
-        </>
+        </div>
     );
 }

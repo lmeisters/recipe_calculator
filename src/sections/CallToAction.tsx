@@ -3,21 +3,39 @@
 export const CallToAction = () => {
     return (
         <section className="py-20">
-            <div className="container mx-auto flex justify-center">
-                <div className="bg-green-500 p-8 rounded-lg shadow-md flex align-center gap-20">
-                    <div className="flex flex-col">
-                        <h2 className="text-white text-2xl font-bold mb-4">
-                            Ready to get started?
-                        </h2>
-                        <p className="text-white mb-6">
-                            Start benefiting from our fully free-to-use app
-                            immediately, with no restrictions or tiers.
-                        </p>
+            <div className="container h-80 mx-auto flex justify-center max-w-[1024px]">
+                <div className="bg-gradient-to-br from-teal-900 to-teal-800 text-white p-12 rounded-xl relative overflow-hidden">
+                    <div className="absolute inset-0">
+                        {[...Array(5)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="absolute border border-teal-700 rounded-full"
+                                style={{
+                                    width: `${100 + i * 15}%`,
+                                    height: `${100 + i * 15}%`,
+                                    top: "50%",
+                                    left: "50%",
+                                    transform: "translate(-50%, -50%)",
+                                }}
+                            ></div>
+                        ))}
                     </div>
-                    <button className="bg-white text-green-500 font-bold py-2 px-4 rounded hover:bg-green-200 ">
-                        Get started for free
-                    </button>
-                </div>
+                    <div className="relative z-10  mx-auto text-center">
+                        <h2 className="text-4xl font-bold mb-4 ">
+                            FridgeFolio is the only recipe manager you'll ever
+                            need
+                        </h2>
+                        <p className="text-lg mb-8">
+                            Try our platform free with up to 5 client projects
+                            and see how you can reclaim billable hours and
+                            reduce operational chaos
+                        </p>
+
+                        <button className="btn btn-secondary">
+                            Get started for free
+                        </button>
+                    </div>
+                </div>{" "}
             </div>
         </section>
     );

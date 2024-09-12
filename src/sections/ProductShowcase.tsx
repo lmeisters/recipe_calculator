@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import PlaceHolder from "@/assets/placeholder-website.webp";
-import Image from "next/image"; // Add this import
+import Image from "next/image";
 
 const menuItems = [
     {
@@ -74,19 +74,43 @@ export const ProductShowcase = () => {
     };
 
     return (
-        <section className="bg-slate-100">
+        <motion.section
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-200px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="bg-slate-100"
+        >
             <div className="container mx-auto px-4 flex flex-col items-center justify-center py-20">
                 <div className="section-heading mb-16">
-                    <div className="flex justify-center">
+                    <motion.div
+                        initial={{ y: 30, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
+                        viewport={{ once: true, margin: "-200px" }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="flex justify-center"
+                    >
                         <div className="tag">How it Works</div>
-                    </div>
-                    <h2 className="section-title my-5">
+                    </motion.div>
+                    <motion.h2
+                        initial={{ y: 30, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
+                        viewport={{ once: true, margin: "-200px" }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                        className="section-title my-5"
+                    >
                         Simple Steps to Manage and Enjoy Your Recipes
-                    </h2>
-                    <p className="section-description mt-5">
+                    </motion.h2>
+                    <motion.p
+                        initial={{ y: 30, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
+                        viewport={{ once: true, margin: "-200px" }}
+                        transition={{ duration: 0.6, delay: 0.6 }}
+                        className="section-description mt-5"
+                    >
                         Effortlessly save, scale, and plan meals with just a few
                         easy steps
-                    </p>
+                    </motion.p>
                 </div>
 
                 <div className="card md:flex max-w-[1024px] bg-white">
@@ -163,6 +187,6 @@ export const ProductShowcase = () => {
                     </div>
                 </div>
             </div>
-        </section>
+        </motion.section>
     );
 };

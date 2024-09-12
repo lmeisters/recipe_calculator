@@ -4,19 +4,19 @@
 
 @layer components {
     .btn {
-        @apply bg-black text-white px-4 py-1.5 rounded-lg font-medium inline-flex items-center justify-center;
+        @apply bg-black text-white px-4 py-1.5 rounded-lg font-medium inline-flex items-center justify-center transition-colors duration-200;
     }
 
     .btn-primary {
-        @apply bg-black text-white hover:bg-gray-700 transition-colors duration-200;
+        @apply bg-black text-white hover:bg-gray-800;
     }
 
     .btn-secondary {
-        @apply bg-white text-black hover:bg-gray-300 hover:text-white transition-colors duration-200;
+        @apply bg-white text-black border border-black hover:bg-gray-100;
     }
 
     .btn-text {
-        @apply text-black bg-white;
+        @apply text-black bg-white hover:bg-gray-100;
     }
 
     .tag {
@@ -57,4 +57,14 @@
 
 .animate-custom-pulse {
     animation: custom-pulse 2.5s infinite;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
