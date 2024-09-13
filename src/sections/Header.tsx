@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { GrMenu } from "react-icons/gr";
 
 export const Header = () => {
@@ -31,9 +32,12 @@ export const Header = () => {
                                 </a>
                             ))}
                         </nav>
-                        <button className="btn btn-primary hidden md:block">
+                        <Link
+                            href="/calculator"
+                            className="btn btn-primary hidden md:block"
+                        >
                             Try demo
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
