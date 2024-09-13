@@ -80,6 +80,7 @@ export const ProductShowcase = () => {
             viewport={{ once: true, margin: "-200px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="bg-slate-100"
+            id="how-it-works"
         >
             <div className="container mx-auto px-4 flex flex-col items-center justify-center py-20">
                 <div className="section-heading mb-16">

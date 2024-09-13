@@ -64,7 +64,7 @@ export const FAQ = () => {
     ];
 
     return (
-        <section className="py-20 flex justify-center">
+        <section className="py-20 flex justify-center" id="faq">
             <div className="container">
                 <div className="section-heading mb-16">
                     <div className="flex justify-center">
