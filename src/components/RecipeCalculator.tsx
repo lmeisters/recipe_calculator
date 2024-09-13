@@ -2,9 +2,9 @@
 // import Link from "next/link";
 
 // const RecipeCalculator = () => {
-//     const [recipeText, setRecipeText] = useState("");
-//     const [portions, setPortions] = useState(1);
-//     const [ingredients, setIngredients] = useState([]);
+//     const [_recipeText, _setRecipeText] = useState("");
+//     const [_portions, _setPortions] = useState(1);
+//     const [_ingredients, _setIngredients] = useState([]);
 
 //     // ... (rest of the component logic remains the same)
 

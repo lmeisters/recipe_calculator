@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useScroll, useSpring, useTransform } from "framer-motion";
 import { motion } from "framer-motion";
 

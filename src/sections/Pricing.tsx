@@ -1,6 +1,5 @@
 "use client";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
 import CheckIcon from "@/assets/check.svg";
 
 const pricingTiers = [
@@ -55,18 +54,15 @@ export const Pricing = () => {
 
                 <div className="flex lg:flex-row flex-col gap-6 items-center lg:items-start lg:justify-center">
                     {pricingTiers.map(
-                        (
-                            {
-                                title,
-                                monthlyPrice,
-                                buttonText,
-                                inverse,
-                                features,
-                            },
-                            index
-                        ) => (
+                        ({
+                            title,
+                            monthlyPrice,
+                            buttonText,
+                            inverse,
+                            features,
+                        }) => (
                             <div
-                                key={title} // Add this line
+                                key={title}
                                 className={twMerge(
                                     "card",
                                     inverse === true &&
