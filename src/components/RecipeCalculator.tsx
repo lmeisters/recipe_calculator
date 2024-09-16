@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CreateRecipeForm } from "@/components/CreateRecipeForm";
 import {
     Search,
@@ -10,18 +10,43 @@ import {
     ShoppingCart,
     Clock,
 } from "lucide-react";
+import axios from "axios";
+
+interface Recipe {
+    name: string;
+    photo?: string;
+    time: string;
+}
+
+interface CreateRecipeFormProps {
+    onClose: () => void;
+    onRecipeCreated: (newRecipe: Recipe) => void;
+}
 
 export const RecipeCalculator = () => {
     const [showForm, setShowForm] = useState(false);
 
-    const recipes = [
-        { name: "Fajitas", time: "30 min", calories: "540 kcal" },
-        { name: "Cajun chicken..", time: "30 min", calories: "540 kcal" },
-        { name: "Pasta Carbonara", time: "25 min", calories: "480 kcal" },
-        { name: "Greek Salad", time: "15 min", calories: "320 kcal" },
-        { name: "Beef Stir Fry", time: "35 min", calories: "420 kcal" },
-        { name: "Vegetable Soup", time: "40 min", calories: "280 kcal" },
-    ];
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
+
+    useEffect(() => {
+        fetchRecipes();
+    }, []);
+
+    const fetchRecipes = async () => {
+        try {
+            const response = await axios.get(
+                "http://localhost:5000/api/recipes"
+            );
+            setRecipes(response.data);
+        } catch (error) {
+            console.error("Error fetching recipes:", error);
+        }
+    };
+
+    const handleRecipeCreated = (newRecipe: Recipe) => {
+        setRecipes((prev) => [...prev, newRecipe]);
+    };
+
     return (
         <div className="max-w-md md:max-w-4xl mx-auto bg-gray-100 min-h-screen flex flex-col">
             <header className="bg-white p-4 flex justify-between items-center">
@@ -78,17 +103,21 @@ export const RecipeCalculator = () => {
                             {recipes.map((recipe, index) => (
                                 <div
                                     key={index}
-                                    className="bg-white p-4 rounded-xl shadow w-48 flex-shrink-0"
+                                    className="bg-white p-4 rounded-lg shadow w-48 flex-shrink-0"
                                 >
-                                    <div className="w-full h-36 bg-gray-200 rounded-xl mb-2"></div>
+                                    {recipe.photo && (
+                                        <img
+                                            src={`http://localhost:5000${recipe.photo}`}
+                                            alt={recipe.name}
+                                            className="w-full h-32 object-cover rounded-lg mb-2"
+                                        />
+                                    )}
                                     <h3 className="font-semibold">
                                         {recipe.name}
                                     </h3>
                                     <div className="flex items-center text-sm text-gray-500">
                                         <Clock className="w-4 h-4 mr-1" />
                                         <span>{recipe.time}</span>
-                                        <span className="mx-2">•</span>
-                                        <span>{recipe.calories}</span>
                                     </div>
                                 </div>
                             ))}
@@ -132,7 +161,10 @@ export const RecipeCalculator = () => {
                 </div>
             </main>
             {showForm && (
-                <CreateRecipeForm onClose={() => setShowForm(false)} />
+                <CreateRecipeForm
+                    onClose={() => setShowForm(false)}
+                    onRecipeCreated={handleRecipeCreated}
+                />
             )}
         </div>
     );

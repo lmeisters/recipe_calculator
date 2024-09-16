@@ -1,11 +1,31 @@
 "use client";
 
 import { X, ChevronLeft, Plus, Minus, Camera } from "lucide-react";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
+import axios from "axios";
 
-export const CreateRecipeForm = ({ onClose }: { onClose: () => void }) => {
+// Add proper typing for the recipe object
+interface Recipe {
+    name: string;
+    photo: File | null;
+    description: string;
+    servingSize: number;
+    diet: string;
+    time: string;
+    mealType: string;
+    ingredients: string;
+}
+
+export const CreateRecipeForm = ({
+    onClose,
+    onRecipeCreated,
+}: {
+    onClose: () => void;
+    onRecipeCreated: (recipe: Recipe) => void; // Use the Recipe interface
+}) => {
     const [step, setStep] = useState(1);
-    const [recipe, setRecipe] = useState({
+    const [recipe, setRecipe] = useState<Recipe>({
+        // Use the Recipe interface
         name: "",
         photo: null,
         description: "",
@@ -18,6 +38,37 @@ export const CreateRecipeForm = ({ onClose }: { onClose: () => void }) => {
 
     const updateRecipe = (field: keyof typeof recipe, value: any) => {
         setRecipe((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            updateRecipe("photo", e.target.files[0]);
+        }
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const formData = new FormData();
+            Object.entries(recipe).forEach(([key, value]) => {
+                if (value !== null) {
+                    formData.append(key, value);
+                }
+            });
+
+            const response = await axios.post<Recipe>(
+                "http://localhost:5000/api/recipes",
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                }
+            );
+
+            console.log("Recipe created:", response.data);
+            onRecipeCreated(response.data);
+            onClose();
+        } catch (error) {
+            console.error("Error creating recipe:", error);
+        }
     };
 
     const renderStepIndicator = () => (
@@ -49,10 +100,20 @@ export const CreateRecipeForm = ({ onClose }: { onClose: () => void }) => {
                 <div className="text-right text-xs text-gray-500">0/50</div>
             </div>
             <div className="mb-4">
-                <button className="w-full p-4 border-2 border-dashed rounded-lg text-center">
+                <label
+                    htmlFor="photo-upload"
+                    className="w-full p-4 border-2 border-dashed rounded-lg text-center block cursor-pointer"
+                >
                     <Camera className="mx-auto mb-2" />
                     Add a Photo
-                </button>
+                </label>
+                <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                />
             </div>
         </>
     );
@@ -196,6 +257,7 @@ export const CreateRecipeForm = ({ onClose }: { onClose: () => void }) => {
                         }
                     >
                         <ChevronLeft />
+                        {step > 1 ? "Back" : "Close"}
                     </button>
                     <h1 className="text-lg font-bold">
                         Create Recipe {step}/4
@@ -208,7 +270,9 @@ export const CreateRecipeForm = ({ onClose }: { onClose: () => void }) => {
                 {renderStepContent()}
                 <button
                     className="w-full bg-black text-white py-2 rounded-full mt-4"
-                    onClick={() => (step < 4 ? setStep(step + 1) : onClose())}
+                    onClick={() =>
+                        step < 4 ? setStep(step + 1) : handleSubmit()
+                    }
                 >
                     {step < 4 ? "Next" : "Upload"}
                 </button>
