@@ -3,7 +3,7 @@
 export const CallToAction = () => {
     return (
         <section className="py-20">
-            <div className="container h-80 mx-auto flex justify-center max-w-[1024px]">
+            <div className="container h-80 mx-auto flex justify-center max-w-[1024px] sm:px-32">
                 <div className="bg-gradient-to-br from-teal-900 to-teal-800 text-white p-12 rounded-xl relative overflow-hidden">
                     <div className="absolute inset-0">
                         {[...Array(5)].map((_, i) => (

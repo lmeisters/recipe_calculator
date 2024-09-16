@@ -35,7 +35,7 @@ export const Hero = () => {
                         >
                             Transform your cooking with FridgeFolio. Search,
                             save, and scale recipes effortlessly. Plan meals,
-                            track ingredients, and meet your dietary goals—all
+                            track ingredients, and meet your dietary goals - all
                             in one powerful app.
                         </motion.p>
                         <motion.div
