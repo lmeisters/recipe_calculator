@@ -11,6 +11,7 @@ import {
     Clock,
 } from "lucide-react";
 import axios from "axios";
+import Link from "next/link";
 
 interface Recipe {
     name: string;
@@ -34,12 +35,24 @@ export const RecipeCalculator = () => {
 
     const fetchRecipes = async () => {
         try {
-            const response = await axios.get(
-                "http://localhost:5000/api/recipes"
-            );
+            const apiUrl =
+                process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+            const response = await axios.get(`${apiUrl}/api/recipes`);
             setRecipes(response.data);
         } catch (error) {
             console.error("Error fetching recipes:", error);
+            // Fallback to mock data when API is not available
+            setRecipes([
+                { name: "Mock Recipe 1", time: "30 min" },
+                { name: "Mock Recipe 2", time: "45 min" },
+                { name: "Mock Recipe 3", time: "30 min" },
+                { name: "Mock Recipe 4", time: "45 min" },
+                { name: "Mock Recipe 1", time: "30 min" },
+                { name: "Mock Recipe 2", time: "45 min" },
+                { name: "Mock Recipe 3", time: "30 min" },
+                { name: "Mock Recipe 4", time: "45 min" },
+                // Add more mock recipes as needed
+            ]);
         }
     };
 
@@ -48,28 +61,28 @@ export const RecipeCalculator = () => {
     };
 
     return (
-        <div className="max-w-md md:max-w-4xl mx-auto bg-gray-100 min-h-screen flex flex-col">
-            <header className="bg-white p-4 flex justify-between items-center">
-                <h1 className="text-xl font-bold">FridgeFolio</h1>
-                <User className="w-6 h-6 border border-black rounded-full p-1" />
+        <div className="max-w-md md:max-w-4xl mx-auto min-h-screen flex flex-col">
+            <header className="bg-white py-4 flex justify-between items-center">
+                <Link href="/" className="text-xl font-bold">
+                    FridgeFolio
+                </Link>
+                <div className="flex items-center gap-4">
+                    <User className="w-8 h-8 border border-black rounded-xl p-1.5" />
+                    <button
+                        className="bg-black text-white px-4 py-2 rounded-lg flex items-center"
+                        onClick={() => setShowForm(true)}
+                    >
+                        <Plus className="w-4 h-4 mr-2" /> New recipe
+                    </button>
+                </div>
             </header>
 
-            <main className="flex-grow p-4 overflow-y-auto flex flex-col md:gap-8">
+            <main className="flex-grow overflow-y-auto pt-6">
                 <div className="md:flex-grow">
-                    <h2 className="text-3xl font-bold">Hi Linards!</h2>
+                    <h2 className="text-3xl font-bold md:text-5xl">
+                        Hi Linards!
+                    </h2>
                     <p className="text-xl mb-4">Welcome Back</p>
-
-                    <div className="flex gap-2 mb-4">
-                        <button
-                            className="bg-black text-white px-4 py-2 rounded-full flex items-center"
-                            onClick={() => setShowForm(true)}
-                        >
-                            <Plus className="w-4 h-4 mr-2" /> New recipe
-                        </button>
-                        <button className="border border-black px-4 py-2 rounded-full flex items-center">
-                            <Calculator className="w-4 h-4 mr-2" /> Calculate
-                        </button>
-                    </div>
 
                     <div className="relative mb-4">
                         <input
@@ -80,7 +93,7 @@ export const RecipeCalculator = () => {
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     </div>
 
-                    <div className="flex gap-4 mb-4 overflow-x-auto pb-2 scrollbar-hide justify-center">
+                    <div className="flex gap-4 mb-4 overflow-x-auto pb-2 scrollbar-hide justify-center font-semibold">
                         {[
                             "Breakfast",
                             "Lunch",
@@ -92,31 +105,35 @@ export const RecipeCalculator = () => {
                                 key={meal}
                                 className="flex-shrink-0 text-center"
                             >
-                                <div className="w-16 h-16 bg-gray-300 rounded-lg mb-1 "></div>
+                                <div className="w-16 h-16 rounded-lg mb-1 border border-gray-300"></div>
                                 <span className="text-sm">{meal}</span>
                             </div>
                         ))}
                     </div>
 
                     <div className="pb-4 sm:overflow-x-hidden">
-                        <div className="flex gap-4 md:flex-wrap md:justify-start">
+                        <div className="flex gap-4 md:justify-start">
                             {recipes.map((recipe, index) => (
                                 <div
                                     key={index}
-                                    className="bg-white p-4 rounded-lg shadow w-48 flex-shrink-0"
+                                    className="bg-white p-4 rounded-lg w-48 md:w-64 lg:w-96 lg:h-96 flex-shrink-0 flex flex-col justify-between border border-gray-300 shadow-md"
                                 >
-                                    {recipe.photo && (
+                                    <div>
                                         <img
-                                            src={`http://localhost:5000${recipe.photo}`}
+                                            src={
+                                                recipe.photo ||
+                                                "https://via.placeholder.com/150"
+                                            }
                                             alt={recipe.name}
-                                            className="w-full h-32 object-cover rounded-lg mb-2"
+                                            className="w-full h-32 md:h-40 lg:h-56 object-cover rounded-lg mb-2"
                                         />
-                                    )}
-                                    <h3 className="font-semibold">
-                                        {recipe.name}
-                                    </h3>
-                                    <div className="flex items-center text-sm text-gray-500">
-                                        <Clock className="w-4 h-4 mr-1" />
+
+                                        <h3 className="font-semibold text-sm md:text-base lg:text-xl mt-4">
+                                            {recipe.name}
+                                        </h3>
+                                    </div>
+                                    <div className="flex items-center text-sm md:text-base text-gray-500">
+                                        <Clock className="w-4 h-4 mr-1 md:w-5 md:h-5" />
                                         <span>{recipe.time}</span>
                                     </div>
                                 </div>
@@ -125,8 +142,8 @@ export const RecipeCalculator = () => {
                     </div>
                 </div>
 
-                <div className="md:w-80 md:flex-shrink-0">
-                    <div className="bg-white p-4 rounded-lg shadow-inner mt-4 md:mt-0">
+                <div className="md:w-auto md:flex-shrink-0">
+                    <div className="bg-white p-4 rounded-lg mt-4 md:mt-0 border border-gray-300 shadow-md">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <ShoppingCart className="w-5 h-5" />
@@ -134,8 +151,8 @@ export const RecipeCalculator = () => {
                                     Shopping list
                                 </span>
                             </div>
-                            <button className="text-sm text-gray-500">
-                                Edit
+                            <button className="text-sm text-gray-500 border border-gray-500 rounded-lg p-1 bg-black">
+                                <Plus className="w-4 h-4 text-white" />
                             </button>
                         </div>
                         <ul className="space-y-2">

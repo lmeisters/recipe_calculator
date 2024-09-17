@@ -86,7 +86,7 @@ export const CreateRecipeForm = ({
 
     const renderStep1 = () => (
         <>
-            <div className="mb-4">
+            <div className="mb-4 my-10">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Recipe Name
                 </label>
@@ -102,7 +102,7 @@ export const CreateRecipeForm = ({
             <div className="mb-4">
                 <label
                     htmlFor="photo-upload"
-                    className="w-full p-4 border-2 border-dashed rounded-lg text-center block cursor-pointer"
+                    className="w-full p-4 border-2 border-dashed rounded-lg text-center cursor-pointer h-64 flex flex-col items-center justify-center"
                 >
                     <Camera className="mx-auto mb-2" />
                     Add a Photo
@@ -249,15 +249,14 @@ export const CreateRecipeForm = ({
 
     return (
         <div className="fixed inset-0 bg-white z-50 overflow-y-auto flex items-center justify-center">
-            <div className="max-w-md mx-auto w-full p-4">
-                <div className="flex justify-between items-center mb-4">
+            <div className="max-w-md w-full pb-4 flex flex-col h-screen">
+                <div className="flex justify-between items-center mb-4 border-2 border-gray-300 rounded-b-lg p-8 bg-green-300">
                     <button
                         onClick={() =>
                             step > 1 ? setStep(step - 1) : onClose()
                         }
                     >
                         <ChevronLeft />
-                        {step > 1 ? "Back" : "Close"}
                     </button>
                     <h1 className="text-lg font-bold">
                         Create Recipe {step}/4
@@ -267,7 +266,9 @@ export const CreateRecipeForm = ({
                     </button>
                 </div>
                 {renderStepIndicator()}
-                {renderStepContent()}
+                <div className="flex-grow overflow-y-auto">
+                    {renderStepContent()}
+                </div>
                 <button
                     className="w-full bg-black text-white py-2 rounded-full mt-4"
                     onClick={() =>
