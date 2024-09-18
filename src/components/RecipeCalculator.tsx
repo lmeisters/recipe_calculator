@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { CreateRecipeForm } from "@/components/CreateRecipeForm";
-import { Search, User, Plus, ShoppingCart, Clock } from "lucide-react";
+import {
+    Search,
+    User,
+    Plus,
+    ShoppingCart,
+    Clock,
+    Refrigerator,
+} from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 
@@ -135,8 +142,8 @@ export const RecipeCalculator = () => {
                     </div>
                 </div>
 
-                <div className="md:w-auto md:flex-shrink-0">
-                    <div className="bg-white p-4 rounded-lg mt-4 md:mt-0 border border-gray-300 shadow-md">
+                <div className="md:w-auto md:flex-shrink-0 flex flex-col md:flex-row gap-4 items-stretch justify-center w-full">
+                    <div className="bg-white p-4 rounded-lg mt-4 md:mt-0 border border-gray-300 shadow-md flex-1 ">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <ShoppingCart className="w-5 h-5" />
@@ -167,6 +174,38 @@ export const RecipeCalculator = () => {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg mt-4 md:mt-0 border border-gray-300 shadow-md flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <Refrigerator className="w-5 h-5" />
+                                <span className="font-semibold">
+                                    What's in your fridge?
+                                </span>
+                            </div>
+                            <button className="text-sm text-gray-500 border border-gray-500 rounded-lg p-1 bg-black">
+                                <Plus className="w-4 h-4 text-white" />
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            <ul className="space-y-2 mt-2">
+                                {[
+                                    "2 Eggs",
+                                    "1 Avocado",
+                                    "500ml Milk",
+                                    "200g Cheese",
+                                ].map((item, index) => (
+                                    <li
+                                        key={index}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <span className="flex-grow">
+                                            {item}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </main>
