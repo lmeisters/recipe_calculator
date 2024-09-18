@@ -1,10 +1,9 @@
 "use client";
 
-import { X, ChevronLeft, Plus, Minus, Camera } from "lucide-react";
-import { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent } from "react";
+import { X, ChevronLeft, Plus, Minus, Camera, AlertCircle } from "lucide-react";
 import axios from "axios";
 
-// Add proper typing for the recipe object
 interface Recipe {
     name: string;
     photo: File | null;
@@ -16,16 +15,28 @@ interface Recipe {
     ingredients: string;
 }
 
+interface IngredientItem {
+    type: "ingredient" | "section";
+    ingredient?: string;
+    amount?: string;
+    unit?: string;
+    description?: string;
+    category?: string;
+    section?: string | null;
+    name?: string;
+}
+
+type EditableIngredientFields = Exclude<keyof IngredientItem, "type">;
+
 export const CreateRecipeForm = ({
     onClose,
     onRecipeCreated,
 }: {
     onClose: () => void;
-    onRecipeCreated: (recipe: Recipe) => void; // Use the Recipe interface
+    onRecipeCreated: (recipe: Recipe) => void;
 }) => {
     const [step, setStep] = useState(1);
     const [recipe, setRecipe] = useState<Recipe>({
-        // Use the Recipe interface
         name: "",
         photo: null,
         description: "",
@@ -35,8 +46,13 @@ export const CreateRecipeForm = ({
         mealType: "",
         ingredients: "",
     });
+    const [parsedIngredients, setParsedIngredients] = useState<
+        IngredientItem[]
+    >([]);
+    const [parsingErrors, setParsingErrors] = useState<string[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
 
-    const updateRecipe = (field: keyof typeof recipe, value: any) => {
+    const updateRecipe = (field: keyof Recipe, value: any) => {
         setRecipe((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -220,8 +236,13 @@ export const CreateRecipeForm = ({
                 placeholder="Add ingredients E.g. Chicken 250g"
                 className="w-full p-2 border rounded h-64"
                 value={recipe.ingredients}
-                onChange={(e) => updateRecipe("ingredients", e.target.value)}
+                onChange={(e) => {
+                    updateRecipe("ingredients", e.target.value);
+                    parseIngredients(e.target.value);
+                }}
             />
+            {renderParsedIngredients()}
+            {renderParsingErrors()}
         </div>
     );
 
@@ -245,6 +266,232 @@ export const CreateRecipeForm = ({
             default:
                 return null;
         }
+    };
+
+    const sanitizeInput = (input: string) => {
+        return input.replace(/[^a-zA-Z0-9\s.,;:!?()]/g, "");
+    };
+
+    const parseIngredients = (input: string) => {
+        const sanitizedInput = sanitizeInput(input);
+        const lines = sanitizedInput.split("\n");
+        const parsed: IngredientItem[] = [];
+        const errors: string[] = [];
+        let currentSection: string | null = null;
+
+        lines.forEach((line, index) => {
+            line = line.trim();
+            if (line === "") return;
+
+            if (
+                line.toLowerCase().startsWith("for the") ||
+                line.toLowerCase().startsWith("for")
+            ) {
+                currentSection = line;
+                parsed.push({ type: "section", name: currentSection });
+                return;
+            }
+
+            const match = line.match(
+                /^((?:\d+(?:\/\d+)?|\d*\.?\d+)?\s*(?:\w+)?)?\s*(.+?)(?:,\s*([\w\s]+))?$/i
+            );
+
+            if (match) {
+                let [_, amountAndUnit, ingredientRaw, description] = match;
+
+                const amountUnitMatch = amountAndUnit
+                    ? amountAndUnit.match(
+                          /^(\d+(?:\/\d+)?|\d*\.?\d+)?\s*(\w+)?$/
+                      )
+                    : null;
+                const amount = amountUnitMatch ? amountUnitMatch[1] : "";
+                let unit = amountUnitMatch ? amountUnitMatch[2] || "" : "";
+
+                const ingredient = ingredientRaw.trim();
+                const { recognizedIngredient, category } =
+                    recognizeIngredient(ingredient);
+
+                parsed.push({
+                    type: "ingredient",
+                    ingredient: recognizedIngredient,
+                    amount: amount || "",
+                    unit: unit || "",
+                    description: description || "",
+                    category,
+                    section: currentSection,
+                });
+            } else {
+                errors.push(`Line ${index + 1}: Unable to parse "${line}"`);
+            }
+        });
+
+        setParsedIngredients(parsed);
+        setParsingErrors(errors);
+    };
+
+    const recognizeIngredient = (input: string) => {
+        const lowerInput = input.toLowerCase();
+        for (const [key, data] of Object.entries(ingredientDatabase)) {
+            if (
+                lowerInput.includes(key) ||
+                data.variations.some((v) => lowerInput.includes(v)) ||
+                data.misspellings.some((m) => lowerInput.includes(m)) ||
+                data.alternatives.some((a) => lowerInput.includes(a))
+            ) {
+                return { recognizedIngredient: input, category: data.category };
+            }
+        }
+        return { recognizedIngredient: input, category: "Other" };
+    };
+
+    const handleEditToggle = () => {
+        if (isEditing) {
+            const updatedIngredients = parsedIngredients
+                .map((item) => {
+                    if (item.type === "section") return item.name;
+                    return `${item.amount} ${item.unit} ${item.ingredient}${
+                        item.description ? ", " + item.description : ""
+                    }`;
+                })
+                .join("\n");
+            setRecipe((prev) => ({ ...prev, ingredients: updatedIngredients }));
+            parseIngredients(updatedIngredients);
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleIngredientChange = (
+        index: number,
+        field: EditableIngredientFields,
+        value: string
+    ) => {
+        const newParsedIngredients = [...parsedIngredients];
+        if (field === "ingredient") {
+            value = value.replace(/:$/, ""); // Remove colon at the end if present
+        }
+        (newParsedIngredients[index] as any)[field] = sanitizeInput(value);
+        setParsedIngredients(newParsedIngredients);
+    };
+
+    const renderIngredientItem = (item: IngredientItem, index: number) => {
+        if (item.type === "section") {
+            return (
+                <li key={index} className="font-bold mt-4 mb-2">
+                    {item.name}
+                </li>
+            );
+        }
+
+        const capitalizedIngredient = item.ingredient
+            ? item.ingredient.charAt(0).toUpperCase() +
+              item.ingredient.slice(1) +
+              ":"
+            : "";
+
+        if (isEditing) {
+            return (
+                <li key={index} className="mb-2 flex items-center space-x-2">
+                    <input
+                        value={capitalizedIngredient}
+                        onChange={(e) =>
+                            handleIngredientChange(
+                                index,
+                                "ingredient",
+                                e.target.value
+                            )
+                        }
+                        className="flex-grow border rounded px-2 py-1"
+                    />
+                    <input
+                        value={item.amount}
+                        onChange={(e) =>
+                            handleIngredientChange(
+                                index,
+                                "amount",
+                                e.target.value
+                            )
+                        }
+                        className="w-20 border rounded px-2 py-1"
+                    />
+                    <input
+                        value={item.unit}
+                        onChange={(e) =>
+                            handleIngredientChange(
+                                index,
+                                "unit",
+                                e.target.value
+                            )
+                        }
+                        className="w-20 border rounded px-2 py-1"
+                    />
+                    <input
+                        value={item.description}
+                        onChange={(e) =>
+                            handleIngredientChange(
+                                index,
+                                "description",
+                                e.target.value
+                            )
+                        }
+                        className="flex-grow border rounded px-2 py-1"
+                    />
+                </li>
+            );
+        }
+
+        return (
+            <li key={index} className="mb-2">
+                <span className="font-semibold">{capitalizedIngredient}</span>
+                {item.amount && <span className="ml-2">{item.amount}</span>}
+                {item.unit && <span className="ml-1">{item.unit}</span>}
+                {item.description && (
+                    <span className="ml-2 text-gray-600">
+                        ({item.description})
+                    </span>
+                )}
+                <span className="ml-2 bg-gray-200 text-gray-700 px-2 py-1 rounded text-sm">
+                    {item.category}
+                </span>
+            </li>
+        );
+    };
+
+    const renderParsedIngredients = () => (
+        <div className="mt-4 border rounded-lg">
+            <div className="flex justify-between items-center p-4 border-b">
+                <h3 className="text-lg font-semibold">Ingredient Preview</h3>
+                <button
+                    onClick={handleEditToggle}
+                    className="px-4 py-2 bg-black text-white rounded-lg"
+                >
+                    {isEditing ? "Save" : "Edit"}
+                </button>
+            </div>
+            <div className="p-4">
+                <ul>
+                    {parsedIngredients.map((item, index) =>
+                        renderIngredientItem(item, index)
+                    )}
+                </ul>
+            </div>
+        </div>
+    );
+
+    const renderParsingErrors = () => {
+        if (parsingErrors.length === 0) return null;
+        return (
+            <div className="mt-4 border border-red-500 rounded-lg p-4 bg-red-100">
+                <AlertCircle className="h-4 w-4" />
+                <h4 className="font-semibold text-red-700">Parsing Errors</h4>
+                <div>
+                    <ul>
+                        {parsingErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -281,3 +528,163 @@ export const CreateRecipeForm = ({
         </div>
     );
 };
+
+// Ingredient database
+const ingredientDatabase = {
+    // Proteins
+    chicken: {
+        category: "Protein",
+        variations: [
+            "chicken breast",
+            "chicken thigh",
+            "chicken wing",
+            "chicken drumstick",
+            "whole chicken",
+            "ground chicken",
+            "chicken liver",
+        ],
+        misspellings: ["chiken", "chicen", "chcken"],
+        alternatives: ["poultry", "fowl"],
+    },
+    beef: {
+        category: "Protein",
+        variations: [
+            "ground beef",
+            "beef steak",
+            "beef chuck",
+            "sirloin",
+            "ribeye",
+            "tenderloin",
+            "brisket",
+            "flank steak",
+        ],
+        misspellings: ["beaf", "beeff"],
+        alternatives: ["steak", "cow"],
+    },
+    pork: {
+        category: "Protein",
+        variations: [
+            "pork chop",
+            "pork loin",
+            "bacon",
+            "ham",
+            "pork belly",
+            "ground pork",
+        ],
+        misspellings: ["porc", "porcke"],
+        alternatives: ["pig", "swine"],
+    },
+    fish: {
+        category: "Protein",
+        variations: ["salmon", "tuna", "cod", "tilapia", "halibut", "trout"],
+        misspellings: ["fisch", "fishe"],
+        alternatives: ["seafood"],
+    },
+    // Vegetables
+    tomato: {
+        category: "Vegetable",
+        variations: [
+            "cherry tomato",
+            "roma tomato",
+            "beefsteak tomato",
+            "grape tomato",
+        ],
+        misspellings: ["tometo", "tomatoe"],
+        alternatives: ["love apple"],
+    },
+    onion: {
+        category: "Vegetable",
+        variations: [
+            "red onion",
+            "white onion",
+            "yellow onion",
+            "green onion",
+            "shallot",
+        ],
+        misspellings: ["oinion", "onyon"],
+        alternatives: ["allium"],
+    },
+    carrot: {
+        category: "Vegetable",
+        variations: ["baby carrot", "carrot stick", "shredded carrot"],
+        misspellings: ["carot", "carret"],
+        alternatives: ["root vegetable"],
+    },
+    // Fruits
+    apple: {
+        category: "Fruit",
+        variations: [
+            "red apple",
+            "green apple",
+            "golden delicious",
+            "granny smith",
+            "fuji apple",
+        ],
+        misspellings: ["apel", "appel"],
+        alternatives: ["pome"],
+    },
+    banana: {
+        category: "Fruit",
+        variations: ["ripe banana", "green banana", "plantain"],
+        misspellings: ["bananna", "banan"],
+        alternatives: ["yellow fruit"],
+    },
+    // Grains
+    rice: {
+        category: "Grain",
+        variations: [
+            "white rice",
+            "brown rice",
+            "jasmine rice",
+            "basmati rice",
+            "wild rice",
+        ],
+        misspellings: ["ryce", "rais"],
+        alternatives: ["grain"],
+    },
+    pasta: {
+        category: "Grain",
+        variations: ["spaghetti", "penne", "fettuccine", "lasagna", "macaroni"],
+        misspellings: ["paста", "pastа"],
+        alternatives: ["noodles"],
+    },
+    // Dairy
+    milk: {
+        category: "Dairy",
+        variations: [
+            "whole milk",
+            "skim milk",
+            "2% milk",
+            "almond milk",
+            "soy milk",
+        ],
+        misspellings: ["mylk", "milc"],
+        alternatives: ["dairy beverage"],
+    },
+    cheese: {
+        category: "Dairy",
+        variations: ["cheddar", "mozzarella", "parmesan", "gouda", "brie"],
+        misspellings: ["cheeze", "chese"],
+        alternatives: ["dairy product"],
+    },
+    // Spices and Herbs
+    basil: {
+        category: "Herb",
+        variations: ["fresh basil", "dried basil", "thai basil"],
+        misspellings: ["bazil", "basle"],
+        alternatives: ["sweet basil"],
+    },
+    pepper: {
+        category: "Spice",
+        variations: [
+            "black pepper",
+            "white pepper",
+            "red pepper flakes",
+            "cayenne pepper",
+        ],
+        misspellings: ["peper", "peppr"],
+        alternatives: ["peppercorn"],
+    },
+};
+
+export default CreateRecipeForm;
