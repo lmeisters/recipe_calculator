@@ -3,6 +3,7 @@
 import React, { useState, ChangeEvent } from "react";
 import { X, ChevronLeft, Plus, Minus, Camera, AlertCircle } from "lucide-react";
 import axios from "axios";
+import { ingredientDatabase } from "../data/ingredientDatabase";
 
 interface Recipe {
     name: string;
@@ -285,38 +286,97 @@ export const CreateRecipeForm = ({
 
             if (
                 line.toLowerCase().startsWith("for the") ||
-                line.toLowerCase().startsWith("for")
+                line.toLowerCase().startsWith("for") ||
+                line.toLowerCase().startsWith("to serve")
             ) {
                 currentSection = line;
                 parsed.push({ type: "section", name: currentSection });
                 return;
             }
 
+            // Handle "juice of" or "juiced" ingredients
+            const juiceMatch = line.match(/^(?:juice of|juiced)\s+(.+)$/i);
+            if (juiceMatch) {
+                const { recognizedIngredient, category } = recognizeIngredient(
+                    juiceMatch[1]
+                );
+                parsed.push({
+                    type: "ingredient",
+                    ingredient: recognizedIngredient,
+                    amount: "juice of",
+                    unit: "",
+                    description: "",
+                    category,
+                    section: currentSection,
+                });
+                return;
+            }
+
+            // Handle "1 ingredient, juiced" case
+            const juicedMatch = line.match(/^(\d+)\s+(.+),\s*juiced$/i);
+            if (juicedMatch) {
+                const [_, amount, ingredientRaw] = juicedMatch;
+                const { recognizedIngredient, category } =
+                    recognizeIngredient(ingredientRaw);
+                parsed.push({
+                    type: "ingredient",
+                    ingredient: recognizedIngredient,
+                    amount,
+                    unit: "",
+                    description: "juiced",
+                    category,
+                    section: currentSection,
+                });
+                return;
+            }
+
+            // Handle one-word ingredients
+            if (!line.includes(" ")) {
+                const { recognizedIngredient, category } =
+                    recognizeIngredient(line);
+                parsed.push({
+                    type: "ingredient",
+                    ingredient: recognizedIngredient,
+                    amount: "",
+                    unit: "",
+                    description: "",
+                    category,
+                    section: currentSection,
+                });
+                return;
+            }
+
+            // Match pattern: [amount] [unit] ingredient, description
             const match = line.match(
-                /^((?:\d+(?:\/\d+)?|\d*\.?\d+)?\s*(?:\w+)?)?\s*(.+?)(?:,\s*([\w\s]+))?$/i
+                /^((?:\d+(?:\/\d+)?|\d*\.?\d+)?\s*(?:\w+)?)?\s*(.+?)(?:,\s*(.+))?$/i
             );
 
             if (match) {
-                let [_, amountAndUnit, ingredientRaw, description] = match;
+                let [_, amountAndUnit, ingredientRaw, description = ""] = match;
 
-                const amountUnitMatch = amountAndUnit
-                    ? amountAndUnit.match(
-                          /^(\d+(?:\/\d+)?|\d*\.?\d+)?\s*(\w+)?$/
-                      )
-                    : null;
-                const amount = amountUnitMatch ? amountUnitMatch[1] : "";
-                let unit = amountUnitMatch ? amountUnitMatch[2] || "" : "";
+                let amount = "";
+                let unit = "";
 
-                const ingredient = ingredientRaw.trim();
-                const { recognizedIngredient, category } =
-                    recognizeIngredient(ingredient);
+                if (amountAndUnit) {
+                    const amountUnitMatch = amountAndUnit.match(
+                        /^(\d+(?:\/\d+)?|\d*\.?\d+)?\s*(\w+)?$/
+                    );
+                    if (amountUnitMatch) {
+                        amount = amountUnitMatch[1] || "";
+                        unit = amountUnitMatch[2] || "";
+                    }
+                }
+
+                const { recognizedIngredient, category } = recognizeIngredient(
+                    ingredientRaw.trim()
+                );
 
                 parsed.push({
                     type: "ingredient",
                     ingredient: recognizedIngredient,
-                    amount: amount || "",
-                    unit: unit || "",
-                    description: description || "",
+                    amount,
+                    unit,
+                    description: description.trim(),
                     category,
                     section: currentSection,
                 });
@@ -400,7 +460,7 @@ export const CreateRecipeForm = ({
                                 e.target.value
                             )
                         }
-                        className="flex-grow border rounded px-2 py-1"
+                        className="flex-grow border rounded-xl px-2 py-1"
                     />
                     <input
                         value={item.amount}
@@ -497,7 +557,7 @@ export const CreateRecipeForm = ({
     return (
         <div className="fixed inset-0 bg-white z-50 overflow-y-auto flex items-center justify-center">
             <div className="max-w-md w-full pb-4 flex flex-col h-screen">
-                <div className="flex justify-between items-center mb-4 border-2 border-gray-300 rounded-b-lg p-8 bg-green-300">
+                <div className="flex justify-between items-center mb-4 rounded-b-lg p-8 bg-green-300">
                     <button
                         onClick={() =>
                             step > 1 ? setStep(step - 1) : onClose()
@@ -528,163 +588,3 @@ export const CreateRecipeForm = ({
         </div>
     );
 };
-
-// Ingredient database
-const ingredientDatabase = {
-    // Proteins
-    chicken: {
-        category: "Protein",
-        variations: [
-            "chicken breast",
-            "chicken thigh",
-            "chicken wing",
-            "chicken drumstick",
-            "whole chicken",
-            "ground chicken",
-            "chicken liver",
-        ],
-        misspellings: ["chiken", "chicen", "chcken"],
-        alternatives: ["poultry", "fowl"],
-    },
-    beef: {
-        category: "Protein",
-        variations: [
-            "ground beef",
-            "beef steak",
-            "beef chuck",
-            "sirloin",
-            "ribeye",
-            "tenderloin",
-            "brisket",
-            "flank steak",
-        ],
-        misspellings: ["beaf", "beeff"],
-        alternatives: ["steak", "cow"],
-    },
-    pork: {
-        category: "Protein",
-        variations: [
-            "pork chop",
-            "pork loin",
-            "bacon",
-            "ham",
-            "pork belly",
-            "ground pork",
-        ],
-        misspellings: ["porc", "porcke"],
-        alternatives: ["pig", "swine"],
-    },
-    fish: {
-        category: "Protein",
-        variations: ["salmon", "tuna", "cod", "tilapia", "halibut", "trout"],
-        misspellings: ["fisch", "fishe"],
-        alternatives: ["seafood"],
-    },
-    // Vegetables
-    tomato: {
-        category: "Vegetable",
-        variations: [
-            "cherry tomato",
-            "roma tomato",
-            "beefsteak tomato",
-            "grape tomato",
-        ],
-        misspellings: ["tometo", "tomatoe"],
-        alternatives: ["love apple"],
-    },
-    onion: {
-        category: "Vegetable",
-        variations: [
-            "red onion",
-            "white onion",
-            "yellow onion",
-            "green onion",
-            "shallot",
-        ],
-        misspellings: ["oinion", "onyon"],
-        alternatives: ["allium"],
-    },
-    carrot: {
-        category: "Vegetable",
-        variations: ["baby carrot", "carrot stick", "shredded carrot"],
-        misspellings: ["carot", "carret"],
-        alternatives: ["root vegetable"],
-    },
-    // Fruits
-    apple: {
-        category: "Fruit",
-        variations: [
-            "red apple",
-            "green apple",
-            "golden delicious",
-            "granny smith",
-            "fuji apple",
-        ],
-        misspellings: ["apel", "appel"],
-        alternatives: ["pome"],
-    },
-    banana: {
-        category: "Fruit",
-        variations: ["ripe banana", "green banana", "plantain"],
-        misspellings: ["bananna", "banan"],
-        alternatives: ["yellow fruit"],
-    },
-    // Grains
-    rice: {
-        category: "Grain",
-        variations: [
-            "white rice",
-            "brown rice",
-            "jasmine rice",
-            "basmati rice",
-            "wild rice",
-        ],
-        misspellings: ["ryce", "rais"],
-        alternatives: ["grain"],
-    },
-    pasta: {
-        category: "Grain",
-        variations: ["spaghetti", "penne", "fettuccine", "lasagna", "macaroni"],
-        misspellings: ["paста", "pastа"],
-        alternatives: ["noodles"],
-    },
-    // Dairy
-    milk: {
-        category: "Dairy",
-        variations: [
-            "whole milk",
-            "skim milk",
-            "2% milk",
-            "almond milk",
-            "soy milk",
-        ],
-        misspellings: ["mylk", "milc"],
-        alternatives: ["dairy beverage"],
-    },
-    cheese: {
-        category: "Dairy",
-        variations: ["cheddar", "mozzarella", "parmesan", "gouda", "brie"],
-        misspellings: ["cheeze", "chese"],
-        alternatives: ["dairy product"],
-    },
-    // Spices and Herbs
-    basil: {
-        category: "Herb",
-        variations: ["fresh basil", "dried basil", "thai basil"],
-        misspellings: ["bazil", "basle"],
-        alternatives: ["sweet basil"],
-    },
-    pepper: {
-        category: "Spice",
-        variations: [
-            "black pepper",
-            "white pepper",
-            "red pepper flakes",
-            "cayenne pepper",
-        ],
-        misspellings: ["peper", "peppr"],
-        alternatives: ["peppercorn"],
-    },
-};
-
-export default CreateRecipeForm;

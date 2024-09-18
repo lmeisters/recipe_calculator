@@ -2,14 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CreateRecipeForm } from "@/components/CreateRecipeForm";
-import {
-    Search,
-    User,
-    Plus,
-    Calculator,
-    ShoppingCart,
-    Clock,
-} from "lucide-react";
+import { Search, User, Plus, ShoppingCart, Clock } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 
