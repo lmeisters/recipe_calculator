@@ -119,7 +119,7 @@ export const CreateRecipeForm = ({
             <div className="mb-4">
                 <label
                     htmlFor="photo-upload"
-                    className="w-full p-4 border-2 border-dashed rounded-lg text-center cursor-pointer h-64 flex flex-col items-center justify-center"
+                    className="w-full p-4 border-2 border-dashed rounded-lg text-center cursor-pointer h-96 flex flex-col items-center justify-center"
                 >
                     <Camera className="mx-auto mb-2" />
                     Add a Photo
@@ -556,7 +556,7 @@ export const CreateRecipeForm = ({
 
     return (
         <div className="fixed inset-0 bg-white z-50 overflow-y-auto flex items-center justify-center">
-            <div className="max-w-md w-full pb-4 flex flex-col h-screen">
+            <div className="w-full max-w-md lg:max-w-2xl xl:max-w-4xl pb-4 flex flex-col h-screen">
                 <div className="flex justify-between items-center mb-4 rounded-b-lg p-8 bg-green-300">
                     <button
                         onClick={() =>
@@ -577,7 +577,7 @@ export const CreateRecipeForm = ({
                     {renderStepContent()}
                 </div>
                 <button
-                    className="w-full bg-black text-white py-2 rounded-full mt-4"
+                    className="w-full lg:w-1/4 bg-black text-white py-2 rounded-full  mx-auto"
                     onClick={() =>
                         step < 4 ? setStep(step + 1) : handleSubmit()
                     }
